@@ -1,0 +1,131 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+@model List<PYG.DAO.Entity.Category>
+
+<style>
+    .tab {
+        padding: 5px 20px 50px 20px;
+    }
+
+    .header {
+        padding: 5px 20px 20px 20px;
+    }
+</style>
+
+<div class="header">
+    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal" onclick="getNewGuid()">添加新数据</button>
+</div>
+
+
+<div class="tab">
+    <table class="table table-bordered" width="100%">
+        <thead>
+            <tr>
+                <th>编号</th>
+                <th>ID</th>
+                <th>名称</th>
+                <th>图标</th>
+                <th>父级ID</th>
+                <th>排序</th>
+                <th>创建时间</th>
+                <th>创建人</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                long count = 1;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@count</td>
+                        <td>@item.ID</td>
+                        <td>@item.Name</td>
+                        <td>@item.Icon</td>
+                        <td>@item.ParentId</td>
+                        <td>@item.SortId</td>
+                        <td>@item.CreateTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@item.Creator</td>
+                    </tr>
+                    count++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+               
+            </div>
+            <div class="modal-body">
+                <div class="form-group form-inline">
+                    <label class="col-sm-3 control-label">ID</label>
+                    <input type="text" class="form-control col-sm-9" id="id" readonly placeholder="唯一标识">
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-3 control-label">名称</label>
+                    <input type="text" class="form-control col-sm-9" id="name" placeholder="name">
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-3 control-label">Icon</label>
+                    <input type="text" class="form-control col-sm-9" id="icon" readonly placeholder="icon">
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-3 control-label">父级ID</label>
+                    <input type="text" class="form-control col-sm-9" id="parentId" placeholder="父级ID">
+                </div>
+
+                <div class="form-group form-inline">
+                    <label class="col-sm-3 control-label">父级排序Id</label>
+                    <input type="text" class="form-control col-sm-9" id="sortId" placeholder="排序编号">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="addCategory()">
+                    提交更改
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getNewGuid() {
+        $.post("/home/GetNewGuid", function (data) {
+            $("#id").val(data);
+            $("#icon").val("/imager/" + data + ".jpg");
+        });
+    }
+
+    function addCategory() {
+        var pamer = {
+            id: $("#id").val(),
+            name: $("#name").val(),
+            icon: $("#icon").val(),
+            parentId: $("#parentId").val(),
+            sortId: $("#sortId").val()
+        }
+
+        $.post("/home/AddCategory", pamer, function (data) {
+            console.log(data);
+            layer.msg(data.message);
+        });
+    }
+</script>
+

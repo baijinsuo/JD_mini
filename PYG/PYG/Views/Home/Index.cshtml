@@ -1,0 +1,209 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    .tab {
+        padding: 5px 20px 50px 20px;
+    }
+
+    .header {
+        padding: 10px 0px;
+    }
+
+    .layui-table-cell {
+        height: 100%;
+        max-width: 100%;
+    }
+</style>
+<div class="tab">
+    <table class="layui-hide tab" id="complainTable" lay-filter="complainList"></table>
+</div>
+
+<script type="text/html" id="barDemo">
+    <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="del">删除</button>
+</script>
+
+<form class="layui-form" style="display:none;padding:30px" id="addCategory">
+    <div class="layui-form-item">
+        <label class="layui-form-label">ID</label>
+        <div class="layui-input-block">
+            <input type="text" placeholder="唯一标识" name="guid" id="guid" readonly class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">名称</label>
+        <div class="layui-input-block">
+            <input type="text" lay-verify="required" name="name" id="name" lay-reqtext="名称是必填项，岂能为空？" placeholder="请输入" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">Icon</label>
+        <div class="layui-input-block">
+            <div class="layui-upload-drag" id="uploadIcon">
+                <i class="layui-icon"></i>
+                <p>点击上传，或将文件拖拽到此处</p>
+                <div class="layui-hide" id="uploadDemoView">
+                    <hr>
+                    <img src="" alt="上传成功后渲染" style="max-width: 196px">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">父级ID</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="parentId" id="parentId" lay-verify="required" lay-reqtext="父级ID是必填项，岂能为空？">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="sortId" id="sortId" lay-verify="required|number">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn" lay-submit="" lay-filter="demo1" id="demo1">立即提交</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/html" id="toolbar01">
+    <div class="layui-form-item">
+        <div class="layui-input-inline">
+            <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" id="btn-add">添加分类</button>
+        </div>
+    </div>
+</script>
+
+<script>
+    layui.use(['table', 'form', 'upload'], function () {
+        var form = layui.form,
+            table = layui.table,
+            upload = layui.upload;
+
+        var tableIns = table.render({
+            elem: '#complainTable'
+            , url: '/home/GetTable/'
+            , cellMinWidth: 80
+            , toolbar: "#toolbar01"
+            , defaultToolbar: ['filter', 'exports', 'print', { 
+                title: '提示'
+                , layEvent: 'LAYTABLE_TIPS'
+                , icon: 'layui-icon-tips'
+            }]
+            , cols: [[
+                  {  type:'numbers'}
+                , { field: 'id', title: 'ID' }
+                , { field: 'name', title: '名称' }
+                , {
+                    field: 'icon', title: '图片', templet: function (d) {
+                        if (d.icon.indexOf('.jpg') >= 0 || d.icon.indexOf('.png') >= 0) {
+                            return '<div><img style="max-height:100px;max-width:200px;" src=' + d.icon+'></div>';
+                        }
+                        else {
+                            return "无图片";
+                        }
+                    }
+                }
+                , { field: 'parentId', title: '父级ID' }
+                , { field: 'sortId', title: '排序', sort: true }
+                , { field: 'createTime', title: '创建时间',templet : "<div>{{layui.util.toDateString(d.sbj_start, 'yyyy-MM-dd HH:mm:ss')}}</div>" } 
+                , { field: 'creator', title: '创建人' }
+                ,{fixed: 'right',title: '操作', width:80, align:'center', toolbar: '#barDemo'}
+            ]],
+            response:{
+		      statusName:'code', 
+			  statusCode:200 
+            },
+		    parseData:function(res){
+			  return {
+					"code" : res.code, 
+					"msg" : res.msg, 
+		    		"data" : res.data 
+			  }
+            },
+        });
+
+        //添加分类
+        $('#btn-add').on('click', function () {
+            $.post("/home/GetNewGuid", function (data) {
+                $("#guid").val(data);
+                $("#icon").val("/imager/" + data + ".jpg");
+            });
+            layer.open({
+                type: 1,
+                shade: false,
+                title: '添加分类',
+                maxmin: true,
+                area: ['800px', '600px'],
+                shadeClose: false,
+                content: $('#addCategory')
+            });
+        });
+
+        //添加数据
+        form.on('submit(demo1)', function (data) {});
+
+        //操作
+        table.on('tool(complainList)', function (obj) {
+            var data = obj.data;
+            json = JSON.stringify(data);
+            switch (obj.event) {
+                case 'del':
+                    var delIndex = layer.confirm('确定删除名称为<span style="color:red;font-size:15px">【  ' + data.name + "  】</span>的信息吗?", function (delIndex) {
+                        $.post("/home/deleteCategory", { id: data.id, icon: data.icon }, function (data) {
+                            if (data.code == 200) {
+                                obj.del();
+                                succeed(data.message);
+                            }
+                            else {
+                                error(data.message);
+                            }
+                        });
+                        layer.close(delIndex);
+                    });
+                    break;
+            }
+        });
+
+        //拖拽上传
+        upload.render({
+            elem: '#uploadIcon'
+            , url: '/home/imgUpload'
+            , auto: false
+            , exts: 'png|jpg|gif'
+            , bindAction: '#demo1'
+            , data: {
+                id: function () {
+                    return $('#guid').val();
+                },
+                name: function () {
+                    return $('#name').val();
+                },
+                parentId: function () {
+                    return $('#parentId').val();
+                },
+                sortId: function () {
+                    return $('#sortId').val();
+                }
+            }
+            , done: function (data) {
+                if (data.code == 200) {
+                    succeed(data.message);
+                    layer.closeAll();
+                    tableIns.reload();
+                }
+                else {
+                    error(data.message);
+                }
+            }
+        });
+
+    });
+</script>
