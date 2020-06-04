@@ -16,9 +16,10 @@
         max-width: 100%;
     }
 </style>
-<div class="tab">
-    <table class="layui-hide tab" id="complainTable" lay-filter="complainList"></table>
-</div>
+
+
+<table class="layui-hide tab" id="complainTable" lay-filter="complainList"></table>
+
 
 <script type="text/html" id="barDemo">
     <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" lay-event="del">删除</button>
@@ -81,6 +82,7 @@
     </div>
 </script>
 
+
 <script>
     layui.use(['table', 'form', 'upload'], function () {
         var form = layui.form,
@@ -92,7 +94,7 @@
             , url: '/home/GetTable/'
             , cellMinWidth: 80
             , toolbar: "#toolbar01"
-            , defaultToolbar: ['filter', 'exports', 'print', { 
+            , defaultToolbar: ['filter', 'exports', 'print', {
                 title: '提示'
                 , layEvent: 'LAYTABLE_TIPS'
                 , icon: 'layui-icon-tips'
@@ -113,19 +115,19 @@
                 }
                 , { field: 'parentId', title: '父级ID' }
                 , { field: 'sortId', title: '排序', sort: true }
-                , { field: 'createTime', title: '创建时间',templet : "<div>{{layui.util.toDateString(d.sbj_start, 'yyyy-MM-dd HH:mm:ss')}}</div>" } 
+                , { field: 'createTime', title: '创建时间',templet : "<div>{{layui.util.toDateString(d.sbj_start, 'yyyy-MM-dd HH:mm:ss')}}</div>" }
                 , { field: 'creator', title: '创建人' }
                 ,{fixed: 'right',title: '操作', width:80, align:'center', toolbar: '#barDemo'}
             ]],
             response:{
-		      statusName:'code', 
-			  statusCode:200 
+		      statusName:'code',
+			  statusCode:200
             },
 		    parseData:function(res){
 			  return {
-					"code" : res.code, 
-					"msg" : res.msg, 
-		    		"data" : res.data 
+					"code" : res.code,
+					"msg" : res.msg,
+		    		"data" : res.data
 			  }
             },
         });

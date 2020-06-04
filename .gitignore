@@ -3,3 +3,11 @@
 ################################################################################
 
 /PYG/PYG/.vs/PYG/v16/Server/sqlite3
+/PYG/PYG/bin/Debug/netcoreapp3.1
+/PYG/PYG/obj
+/PYG/PYG.Common/bin/Debug/netstandard2.0
+/PYG/PYG.Common/obj/Debug/netstandard2.0
+/PYG/PYG.Common/obj
+/PYG/PYG.DAO/bin/Debug/netstandard2.0
+/PYG/PYG.DAO/obj
+/PYG/PYG.Manager
